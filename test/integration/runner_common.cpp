@@ -172,14 +172,15 @@ OidProc OidIntegration::runOidOnProcess(OidOpts opts,
                                         std::vector<std::string> extra_args,
                                         std::string extra_config) {
   // Binary paths are populated by CMake
-  std::string targetExe =
-      std::string(TARGET_EXE_PATH) + " " + opts.targetArgs + " 1000";
+  fs::path targetExe = fs::path(TARGETS_DIR) / opts.target;
+  std::string targetCmd =
+      targetExe.string() + " " + opts.targetArgs + " 1000";
 
   /* Spawn the target process with all IOs redirected to /dev/null to not polute
    * the terminal */
   // clang-format off
   bp::child targetProcess(
-      targetExe,
+      targetCmd,
       bp::std_in  < bp::null,
       bp::std_out > bp::null,
       bp::std_err > bp::null,
@@ -213,7 +214,7 @@ OidProc OidIntegration::runOidOnProcess(OidOpts opts,
   oid_args.insert(oid_args.end(), default_args.begin(), default_args.end());
 
   if (verbose) {
-    std::cerr << "Running: " << targetExe << "\n";
+    std::cerr << "Running: " << targetCmd << "\n";
     std::cerr << "Running: " << oidExe << " ";
     for (const auto& arg : oid_args) {
       std::cerr << arg << " ";
@@ -340,11 +341,12 @@ std::string OilIntegration::TmpDirStr() {
 Proc OilIntegration::runOilTarget(OidOpts opts, std::string extra_config) {
   fs::path thisConfig = createCustomConfig(extra_config);
 
-  std::string targetExe = std::string(TARGET_EXE_PATH) + " " + opts.targetArgs +
+  fs::path targetExe = fs::path(TARGETS_DIR) / opts.target;
+  std::string targetCmd = targetExe.string() + " " + opts.targetArgs +
                           " " + thisConfig.string();
 
   if (verbose) {
-    std::cerr << "Running: " << targetExe << std::endl;
+    std::cerr << "Running: " << targetCmd << std::endl;
   }
 
   // Use tee to write the output to files. If verbose is on, also redirect the
@@ -383,7 +385,7 @@ Proc OilIntegration::runOilTarget(OidOpts opts, std::string extra_config) {
    * later */
   // clang-format off
   bp::child targetProcess(
-      targetExe,
+      targetCmd,
       bp::std_in  < bp::null,
       bp::std_out > std_out_pipe,
       bp::std_err > std_err_pipe,

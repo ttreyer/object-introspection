@@ -265,6 +265,7 @@ def add_oid_integration_test(f, config, case_name, case):
     probe_type = case.get("type", "entry")
     args = case.get("args", "arg0")
     probe_str = get_probe_name(probe_type, config["suite"], case_name, args)
+    target_str = case.get("target", "integration_test_target")
     case_str = get_case_name(config["suite"], case_name)
     exit_code = case.get("expect_oid_exit_code", 0)
     cli_options = (
@@ -281,6 +282,7 @@ def add_oid_integration_test(f, config, case_name, case):
         f"  auto [target, oid] = runOidOnProcess(\n"
         f"        {{\n"
         f"          .ctx = ctx,\n"
+        f'          .target = "{target_str}",\n'
         f'          .targetArgs = "oid {case_str}",\n'
         f'          .scriptSource = "{probe_str}",\n'
         f"        }},\n"
@@ -335,6 +337,7 @@ def add_oid_integration_test(f, config, case_name, case):
 
 
 def add_oil_integration_test(f, config, case_name, case):
+    target_str = case.get("target", "integration_test_target")
     case_str = get_case_name(config["suite"], case_name)
     exit_code = case.get("expect_oil_exit_code", 0)
 
@@ -351,6 +354,7 @@ def add_oil_integration_test(f, config, case_name, case):
         f"  ba::io_context ctx;\n"
         f"  auto target = runOilTarget({{\n"
         f"    .ctx = ctx,\n"
+        f'    .target = "{target_str}",\n'
         f'    .targetArgs = "oil {case_str}",\n'
         f"  }}, std::move(configOptions));\n\n"
         f"  ASSERT_EQ(exit_code(target), {exit_code});\n"

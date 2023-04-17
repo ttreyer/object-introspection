@@ -12,6 +12,7 @@
 
 struct OidOpts {
   boost::asio::io_context& ctx;
+  std::string target;
   std::string targetArgs;
   std::string script;
   std::string scriptSource;

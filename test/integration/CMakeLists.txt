@@ -70,6 +70,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
 set(INTEGRATION_TEST_TARGET_SRC integration_test_target.cpp)
 set(INTEGRATION_TEST_RUNNER_SRC integration_test_runner.cpp)
 
+# List of test targets the runner will run against
+set(TEST_TARGETS)
+
 find_program(PYTHON_CMD NAMES python3.6 python3)
 
 set(THRIFT_TESTS ${THRIFT_TEST_CONFIGS})
@@ -94,6 +97,7 @@ add_custom_command(
 add_executable(integration_test_target ${INTEGRATION_TEST_TARGET_SRC})
 target_compile_options(integration_test_target PRIVATE -O1)
 target_link_libraries(integration_test_target PRIVATE oil Boost::headers ${Boost_LIBRARIES})
+list(APPEND TEST_TARGETS integration_test_target)
 
 add_executable(integration_test_runner ${INTEGRATION_TEST_RUNNER_SRC} runner_common.cpp)
 target_include_directories(integration_test_runner PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -105,7 +109,7 @@ target_link_libraries(integration_test_runner PRIVATE
   tomlplusplus::tomlplusplus
 )
 target_compile_definitions(integration_test_runner PRIVATE
-  TARGET_EXE_PATH="${CMAKE_CURRENT_BINARY_DIR}/integration_test_target"
+  TARGETS_DIR="${CMAKE_CURRENT_BINARY_DIR}"
   OID_EXE_PATH="$<TARGET_FILE:oid>"
   CONFIG_FILE_PATH="${CMAKE_BINARY_DIR}/testing.oid.toml")
 
@@ -137,6 +141,8 @@ if (${THRIFT_FOUND})
     ${CMAKE_CURRENT_BINARY_DIR})
   target_link_libraries(integration_test_target PRIVATE glog::glog)
 endif()
+
+add_dependencies(integration_test_runner ${TEST_TARGETS})
 
 if (DEFINED ENV{CI})
   gtest_discover_tests(integration_test_runner EXTRA_ARGS "--verbose" "--preserve-on-failure")
