@@ -401,6 +401,15 @@ if (WITH_TESTS)
 endif()
 
 
+add_executable(dwarf-types dwarf-types.cpp)
+target_compile_options(dwarf-types PRIVATE -g3 -gsimple-template-names -fstandalone-debug -gdwarf-4)
+target_link_libraries(dwarf-types
+  "-L${DRGN_PATH}/.libs"
+  drgn
+  dw
+  pthread
+  m
+)
 
 ### Custom link options
 if (STATIC_LINK)
